@@ -3,6 +3,8 @@ import Button from '@/components/Button.vue'
 import { authState } from '@/stores/auth'
 import { computed } from 'vue'
 import { AppRoutes } from '@/constants'
+import { ButtonType } from '@/enum/ButtonType'
+import { ButtonStyle } from '@/enum/ButtonStyle'
 const isLoggedIn = computed(() => authState.isLoggedIn)
 </script>
 
@@ -13,10 +15,14 @@ const isLoggedIn = computed(() => authState.isLoggedIn)
 
     <div v-if="!isLoggedIn" class="flex gap-4 mb-2">
       <router-link :to="AppRoutes.SIGNUP">
-        <Button customClass="w-32" variant="outline">Sign Up</Button>
+        <Button customClass="w-32" :type="ButtonType.BUTTON" :variant="ButtonStyle.OUTLINE"
+          >Sign Up</Button
+        >
       </router-link>
       <router-link :to="AppRoutes.LOGIN">
-        <Button customClass="w-32" variant="outline">Login</Button>
+        <Button customClass="w-32" :type="ButtonType.BUTTON" :variant="ButtonStyle.OUTLINE"
+          >Login</Button
+        >
       </router-link>
     </div>
   </div>

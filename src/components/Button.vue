@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { ButtonStyle } from '@/enum/ButtonStyle'
+import { ButtonType } from '@/enum/ButtonType'
+
 defineProps<{
-  type?: 'button' | 'submit'
+  type?: ButtonType
   disabled?: boolean
   customClass?: string
-  variant?: 'solid' | 'outline'
+  variant?: ButtonStyle
 }>()
 
 defineEmits<{
@@ -17,7 +20,7 @@ defineEmits<{
     :class="[
       'px-4 rounded-md h-[40px] flex items-center justify-center transition duration-200',
       disabled ? 'opacity-50 cursor-not-allowed' : '',
-      variant === 'outline'
+      variant === ButtonStyle.OUTLINE
         ? 'bg-transparent border border-2 border-primary text-black hover:bg-primary hover:text-white'
         : 'bg-primary text-white hover:bg-primary-dark',
       customClass,

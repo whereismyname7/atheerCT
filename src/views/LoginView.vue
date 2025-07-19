@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue'
+import { reactive, ref } from 'vue'
 import type { User } from '@/interfaces/User'
 import Input from '@/components/Input.vue'
 import Button from '@/components/Button.vue'
 import router from '@/router'
 import { authState } from '@/stores/auth'
-import { AppRoutes } from '@/constants'
+import { ApiRoutes, AppRoutes } from '@/constants'
+import { ButtonType } from '@/enum/ButtonType'
+import { ButtonStyle } from '@/enum/ButtonStyle'
+import { HttpMethod } from '@/enum/HttpMethod'
+import apiFetch from '@/utils/apiFetch'
+import { ToastType } from '@/enum/ToastType'
+import { useToast } from '@/stores/Toast'
+
+const { addToast } = useToast()
 
 const user = reactive<User>({
   email: '',
@@ -15,13 +23,27 @@ const user = reactive<User>({
 const loginError = ref('')
 
 async function login() {
-  if (user.email !== 'admin@example.com' || user.password !== '123456') {
-    loginError.value = 'Email or password are incorrect'
-    return
-  }
+  try {
+    const data = await apiFetch<null>({
+      url: ApiRoutes.LOGIN,
+      method: HttpMethod.POST,
+      body: {
+        email: user.email,
+        password: user.password,
+      },
+    })
 
-  authState.isLoggedIn = true
-  router.push(AppRoutes.HOME)
+    if (!data.success) {
+      addToast(data.message, ToastType.ERROR)
+      return
+    }
+
+    authState.isLoggedIn = true
+    addToast(data.message, ToastType.SUCCESS)
+    router.push(AppRoutes.HOME)
+  } catch (error: any) {
+    addToast(error.message || 'An unexpected error occurred', ToastType.ERROR)
+  }
 }
 </script>
 
@@ -38,7 +60,7 @@ async function login() {
         <i class="bi bi-info-circle"></i> {{ loginError }}
       </div>
 
-      <Button type="submit" class="w-full"> Login </Button>
+      <Button :type="ButtonType.SUBMIT" :variant="ButtonStyle.SOLID" class="w-full"> Login </Button>
     </form>
   </div>
 </template>

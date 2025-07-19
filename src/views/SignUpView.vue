@@ -5,8 +5,16 @@ import Button from '@/components/Button.vue'
 import { useRouter } from 'vue-router'
 import { AppRoutes } from '@/constants'
 import type { User } from '@/interfaces/User'
+import { ButtonStyle } from '@/enum/ButtonStyle'
+import { ButtonType } from '@/enum/ButtonType'
+import { ToastType } from '@/enum/ToastType'
+import { useToast } from '@/stores/Toast'
+import apiFetch from '@/utils/apiFetch'
+import { HttpMethod } from '@/enum/HttpMethod'
+import { ApiRoutes } from '@/constants'
 
 const router = useRouter()
+const { addToast } = useToast()
 
 const user = reactive<User>({
   email: '',
@@ -37,10 +45,26 @@ watch(
   },
 )
 
-function submit() {
+async function submit() {
   if (!isFormValid.value) return
 
-  router.push(AppRoutes.LOGIN)
+  try {
+    const data = await apiFetch<null>({
+      url: ApiRoutes.REGISTER,
+      method: HttpMethod.POST,
+      body: { email: user.email, password: user.password },
+    })
+
+    if (!data.success) {
+      addToast(data.message, ToastType.ERROR)
+      return
+    }
+
+    addToast(data.message, ToastType.SUCCESS)
+    router.push(AppRoutes.LOGIN)
+  } catch (error: any) {
+    addToast(error.message || 'An unexpected error occurred', ToastType.ERROR)
+  }
 }
 </script>
 
@@ -80,7 +104,14 @@ function submit() {
         </div>
       </div>
 
-      <Button type="submit" :disabled="!isFormValid" class="w-full">Sign Up</Button>
+      <Button
+        :type="ButtonType.SUBMIT"
+        :variant="ButtonStyle.SOLID"
+        :disabled="!isFormValid"
+        class="w-full"
+      >
+        Sign Up
+      </Button>
     </form>
   </div>
 </template>
